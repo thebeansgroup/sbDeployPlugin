@@ -15,6 +15,8 @@ class sbDeployForm extends sfForm
       throw new RuntimeException("Error, mandatory 'type' option not set");
     }
 
+    $this->disableCSRFProtection();
+
     $this->setWidgets(
       array(
         'confirmation' => new sfWidgetFormInput()
