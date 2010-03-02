@@ -24,9 +24,17 @@ Next, make sure to enable the plugin's module:
 
   Add 'sbDeploy' to your 'enabled_modules' array in your `settings.yml` file for the same application as above.
 
+Next, add to the frontend factories.yml:
+deployment:
+  storage:
+    class: sfSessionStorage
+
+Next, add the ajax-loader.gif image in your web/images directory
+
+
 Finally, make sure the plugin is enabled. How to do this will depend on your version of symfony.
 
 Usage
 -----
 
-Visit http://www.yoururl.com/deploy.html (if you are using .html extensions) to deploy.
+Visit http://www.yoururl.com/frontend_deployment.php/deploy to deploy.
