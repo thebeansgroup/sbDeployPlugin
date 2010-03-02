@@ -320,7 +320,7 @@ class sbDeployActions extends sfActions
         'shell_exec' => '../symfony propel:build-model',
         'strpos' => array(
           array(
-            'string' => 'Resetting application autoloaders',
+            'string' => 'autoload',
             'test' => '!==',
             'value' => false
           )
