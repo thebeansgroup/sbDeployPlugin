@@ -588,6 +588,9 @@ class sbDeployActions extends sfActions
         )
       )
     );
+
+    // disabling part of the process temporarily
+    $this->productionActions = array_slice($this->productionActions, 0, 4);
   }
 
   /**
