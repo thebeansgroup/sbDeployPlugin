@@ -23,9 +23,9 @@ class sbDeployActions extends sfActions
 
     $this->projectName = TaskUtils::getProjectName();
 
-    // $this->setLayout('sbDeployLayout');
+    $this->setLayout('sbDeployLayout');
     // the previous line isn't working on Symfony 1.4.6
-    $this->setLayout(false);
+    // $this->setLayout(false);
 
     $this->setupProductionFormActions();
     $this->setupStagingFormActions();
