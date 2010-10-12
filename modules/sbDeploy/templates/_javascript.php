@@ -1,64 +1,66 @@
-$(document).ready(function(){
+<script type="text/javascript">
+  $(document).ready(function(){
 
-  var executer = {
-    step: 0,
-    form: '',
-    overallSuccess: true,
+    var executer = {
+      step: 0,
+      form: '',
+      overallSuccess: true,
 
-    run: function(form)
-    {
-      this.form = form;
-      this.execute();
-    },
-
-    handleAjax: function(data)
-    {
-      var success = data.success && executer.overallSuccess;
-      executer.overallSuccess = success;
-
-      var successClass = (success) ? 'success' : 'error';
-
-      // give feedback if it's present
-      if (data.feedback)
+      run: function(form)
       {
-        $('ol#taskList li:last-child').html($('ol#taskList li:last-child').text() +
-          '<span class="' + successClass + '">' + data.feedback + '</span>');
-      }
+        this.form = form;
+        this.execute();
+      },
 
-      // set the next label if it's present
-      if (data.nextLabel)
+      handleAjax: function(data)
       {
-        $('ol#taskList').append('<li>' + data.nextLabel +
-          ' <img src="/images/ajax-loader.gif" id="ajaxLoader"></li>');
-      }
+        var success = data.success && executer.overallSuccess;
+        executer.overallSuccess = success;
 
-      // final feedback if it's there
-      if (data.finalMessage)
+        var successClass = (success) ? 'success' : 'error';
+
+        // give feedback if it's present
+        if (data.feedback)
+        {
+          $('ol#taskList li:last-child').html($('ol#taskList li:last-child').text() +
+            '<span class="' + successClass + '">' + data.feedback + '</span>');
+        }
+
+        // set the next label if it's present
+        if (data.nextLabel)
+        {
+          $('ol#taskList').append('<li>' + data.nextLabel +
+            ' <img src="/images/ajax-loader.gif" id="ajaxLoader"></li>');
+        }
+
+        // final feedback if it's there
+        if (data.finalMessage)
+        {
+          $('h2#finalFeedback').addClass(successClass);
+          $('h2#finalFeedback').text(data.finalMessage);
+        }
+
+        if (data.nextStep)
+        {
+          executer.step = data.nextStep;
+          executer.execute();
+        }
+      },
+
+      execute: function()
       {
-        $('h2#finalFeedback').addClass(successClass);
-        $('h2#finalFeedback').text(data.finalMessage);
-      }
+        if (this.step === false)
+        {
+          return;
+        }
 
-      if (data.nextStep)
-      {
-        executer.step = data.nextStep;
-        executer.execute();
-      }
-    },
-
-    execute: function()
-    {
-      if (this.step === false)
-      {
-        return;
-      }
-
-      $.getJSON("/frontend_deployment.php/deploy/ajax/" + this.form + "/" + this.step + ".html",
+        $.getJSON("/frontend_deployment.php/deploy/ajax/" + this.form + "/" + this.step + ".html",
         { previousResult: this.overallSuccess },
         this.handleAjax
       );
+      }
     }
-  }
 
-  executer.run('<?php echo $formName ?>');
-});
+    executer.run('<?php echo $formName ?>');
+  });
+</script>

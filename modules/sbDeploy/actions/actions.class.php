@@ -10,6 +10,7 @@
  */
 class sbDeployActions extends sfActions
 {
+
   /**
    * Imposes restrictions on where this script can be used
    */
@@ -18,7 +19,7 @@ class sbDeployActions extends sfActions
 
     if (strpos($_SERVER['HTTP_HOST'], 'testbox') === false)
     {
-      return $this->setTemplate('invalidServer');
+//      return $this->setTemplate('invalidServer');
     }
 
     $this->projectName = TaskUtils::getProjectName();
@@ -26,9 +27,9 @@ class sbDeployActions extends sfActions
     $this->setLayout('sbDeployLayout');
     // the previous line isn't working on Symfony 1.4.6
     // $this->setLayout(false);
-
+    $repoUri = "svn://testbox.beans/projects/{$this->projectName}/" . trim($this->getRequest()->getParameter('staging[repo_uri]', 'trunk'), '/');
     $this->setupProductionFormActions();
-    $this->setupStagingFormActions();
+    $this->setupStagingFormActions($repoUri);
     $this->setupTestFormActions();
   }
 
@@ -86,9 +87,9 @@ class sbDeployActions extends sfActions
     $previousResult = ($request->getParameter('step') == 0) ? true : $previousResult;
 
     $data = $this->performFormAction(
-      $request->getParameter('form'),
-      $request->getParameter('step'),
-      $previousResult
+                    $request->getParameter('form'),
+                    $request->getParameter('step'),
+                    $previousResult
     );
 
     return $this->renderText(json_encode($data));
@@ -104,11 +105,11 @@ class sbDeployActions extends sfActions
     $formName = "{$name}Form";
 
     $this->$formName = new sbDeployForm(
-      array(),
-      array(
-        'type' => $name,
-        'submitAction' => $name
-      )
+                    array(),
+                    array(
+                        'type' => $name,
+                        'submitAction' => $name
+                    )
     );
 
     if ($request->isMethod(sfRequest::POST) && $request->getParameter($this->$formName->getName()))
@@ -179,7 +180,6 @@ class sbDeployActions extends sfActions
           $output = $matches[$matchIndex];
           $result = true;
         }
-
       }
       elseif (isset($action['shell_exec']))
       {
@@ -229,9 +229,9 @@ class sbDeployActions extends sfActions
         $return['feedback'] = $action['messages']['success'];
 
         // now retrieve the label and number of the next step
-        if (isset($this->{"{$form}Actions"}[$step+1]))
+        if (isset($this->{"{$form}Actions"}[$step + 1]))
         {
-          $nextAction = $this->{"{$form}Actions"}[$step+1];
+          $nextAction = $this->{"{$form}Actions"}[$step + 1];
 
           if (isset($nextAction['messages']['label']))
           {
@@ -254,15 +254,15 @@ class sbDeployActions extends sfActions
 
       $status = $result && $previousResult;
 
-      if (isset($this->{"{$form}Actions"}[$step+1]['finalMessages']))
+      if (isset($this->{"{$form}Actions"}[$step + 1]['finalMessages']))
       {
         if ($status)
         {
-          $return['finalMessage'] = $this->{"{$form}Actions"}[$step+1]['finalMessages']['success'];
+          $return['finalMessage'] = $this->{"{$form}Actions"}[$step + 1]['finalMessages']['success'];
         }
         else
         {
-          $return['finalMessage'] = $this->{"{$form}Actions"}[$step+1]['finalMessages']['error'];
+          $return['finalMessage'] = $this->{"{$form}Actions"}[$step + 1]['finalMessages']['error'];
         }
       }
 
@@ -278,154 +278,170 @@ class sbDeployActions extends sfActions
   /**
    * Sets up an array defining actions for the staging form
    */
-  protected function setupStagingFormActions()
+  protected function setupStagingFormActions($repoUri)
   {
     $this->stagingActions = array(
-      // update svn
-      array(
-        'messages' => array(
-          'label' => "Updating deployment working copy with 'svn up'...",
-          'success' => '%output%',
-          'error' => 'Failed to update deployment working copy. Aborting.'
+        // swtich to correct repo
+        array(
+            'messages' => array(
+                'label' => "Switich to repo at $repoUri...",
+                'success' => '%output%',
+                'error' => 'Failed to switch to correct repo. Aborting.'
+            ),
+            'shell_exec' => "cd ../../../ && svn switch $repoUri | tail -n 1",
+            'strpos' => array(
+                array(
+                    'string' => 'revision',
+                    'test' => '!==',
+                    'value' => false
+                )
+            )
         ),
-        'shell_exec' => 'svn up ../../../ | tail -n 1',
-        'strpos' => array(
-          array(
-            'string' => 'revision',
-            'test' => '!==',
-            'value' => false
-          )
-        )
-      ),
-      // clear the symfony cache
-      array(
-        'messages' => array(
-          'label' => "Clearing the symfony cache...",
-          'success' => 'cache cleared',
-          'error' => 'Failed to clear the symfony cache. Aborting.'
+        // update svn
+        array(
+            'messages' => array(
+                'label' => "Updating deployment working copy with 'svn up'...",
+                'success' => '%output%',
+                'error' => 'Failed to update deployment working copy. Aborting.'
+            ),
+            'shell_exec' => 'svn up ../../../ | tail -n 1',
+            'strpos' => array(
+                array(
+                    'string' => 'revision',
+                    'test' => '!==',
+                    'value' => false
+                )
+            )
         ),
-        'shell_exec' => '../symfony cc',
-        'strpos' => array(
-          array(
-            'string' => 'Clearing cache',
-            'test' => '!==',
-            'value' => false
-          )
-        )
-      ),
-      // re-build the model
-      array(
-        'messages' => array(
-          'label' => "Rebuilding model classes... ",
-          'success' => 'done',
-          'error' => 'Failed to rebuild model classes. Aborting.'
+        // clear the symfony cache
+        array(
+            'messages' => array(
+                'label' => "Clearing the symfony cache...",
+                'success' => 'cache cleared',
+                'error' => 'Failed to clear the symfony cache. Aborting.'
+            ),
+            'shell_exec' => '../symfony cc',
+            'strpos' => array(
+                array(
+                    'string' => 'Clearing cache',
+                    'test' => '!==',
+                    'value' => false
+                )
+            )
         ),
-        'shell_exec' => '../symfony propel:build-model',
-        'strpos' => array(
-          array(
-            'string' => 'autoload',
-            'test' => '!==',
-            'value' => false
-          )
-        )
-      ),
-      // clear the symfony cache
-      array(
-        'messages' => array(
-          'label' => "Clearing the symfony cache...",
-          'success' => 'cache cleared',
-          'error' => 'Failed to clear the symfony cache. Aborting.'
+        // re-build the model
+        array(
+            'messages' => array(
+                'label' => "Rebuilding model classes... ",
+                'success' => 'done',
+                'error' => 'Failed to rebuild model classes. Aborting.'
+            ),
+            'shell_exec' => '../symfony propel:build-model',
+            'strpos' => array(
+                array(
+                    'string' => 'autoload',
+                    'test' => '!==',
+                    'value' => false
+                )
+            )
         ),
-        'shell_exec' => '../symfony cc',
-        'strpos' => array(
-          array(
-            'string' => 'Clearing cache',
-            'test' => '!==',
-            'value' => false
-          )
+        // clear the symfony cache
+        array(
+            'messages' => array(
+                'label' => "Clearing the symfony cache...",
+                'success' => 'cache cleared',
+                'error' => 'Failed to clear the symfony cache. Aborting.'
+            ),
+            'shell_exec' => '../symfony cc',
+            'strpos' => array(
+                array(
+                    'string' => 'Clearing cache',
+                    'test' => '!==',
+                    'value' => false
+                )
+            )
+        ),
+        // set up staging prior to uploading
+        array(
+            'messages' => array(
+                'label' => 'Setting up staging environment prior to upload... ',
+                'success' => 'success',
+                'error' => 'failed. Message was: %output%'
+            ),
+            'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony site:setup staging",
+            'strpos' => array(
+                array(
+                    'string' => 'Clearing the Symfony cache...',
+                    'test' => '!==',
+                    'value' => false
+                )
+            )
+        ),
+        // copy code to staging
+        array(
+            'messages' => array(
+                'label' => 'Uploading code to staging environment... ',
+                'success' => 'success',
+                'error' => 'failed. Output was: %output%'
+            ),
+            'shell_exec' => "../symfony site:deploy-to-staging",
+            'strpos' => array(
+                // all of these will be combined with &&. All must be true for the execution to have
+                // been successful
+                array(
+                    'string' => 'rsync',
+                    'test' => '!==',
+                    'value' => false
+                ),
+                array(
+                    'string' => 'PHP Stack trace:',
+                    'test' => '===',
+                    'value' => false
+                ),
+                array(
+                    'string' => 'Call Stack:',
+                    'test' => '===',
+                    'value' => false
+                )
+            )
+        ),
+        // running set-up staging on web1 again
+        array(
+            'messages' => array(
+                'label' => 'Setting up staging environment after upload... ',
+                'success' => 'success',
+                'error' => 'Failed to set-up staging environment after uploading. Message was: %output%'
+            ),
+            'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony site:build-staging",
+            'strpos' => array(
+                array(
+                    'string' => 'Staging build completed successfully.',
+                    'test' => '!==',
+                    'value' => false
+                ),
+                array(
+                    'string' => 'error',
+                    'test' => '===',
+                    'value' => false
+                )
+            )
+        ),
+        // rsynching across staging servers
+        array(
+            'messages' => array(
+                'label' => 'Synching to other staging servers... ',
+                'success' => 'success',
+                'error' => 'Failed to synch to other staging servers. Message was: %output%'
+            ),
+            'shell_exec' => "ssh upload@web1 sudo /usr/local/bin/rsync" .
+            ucfirst($this->projectName) . "Staging.sh"
+        ),
+        array(
+            'finalMessages' => array(
+                'success' => 'Staging deployment successful. Now run the tests.',
+                'error' => 'Staging build did not complete successfully.'
+            )
         )
-      ),
-      // set up staging prior to uploading
-      array(
-        'messages' => array(
-          'label' => 'Setting up staging environment prior to upload... ',
-          'success' => 'success',
-          'error' => 'failed. Message was: %output%'
-         ),
-        'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony site:setup staging",
-        'strpos' => array(
-          array(
-            'string' => 'Clearing the Symfony cache...',
-            'test' => '!==',
-            'value' => false
-          )
-        )
-      ),
-      // copy code to staging
-      array(
-        'messages' => array(
-          'label' => 'Uploading code to staging environment... ',
-          'success' => 'success',
-          'error' => 'failed. Output was: %output%'
-         ),
-        'shell_exec' => "../symfony site:deploy-to-staging",
-        'strpos' => array(
-          // all of these will be combined with &&. All must be true for the execution to have
-          // been successful
-          array(
-            'string' => 'rsync',
-            'test' => '!==',
-            'value' => false
-          ),
-          array(
-            'string' => 'PHP Stack trace:',
-            'test' => '===',
-            'value' => false
-          ),
-          array(
-            'string' => 'Call Stack:',
-            'test' => '===',
-            'value' => false
-          )
-        )
-      ),
-      // running set-up staging on web1 again
-      array(
-        'messages' => array(
-          'label' => 'Setting up staging environment after upload... ',
-          'success' => 'success',
-          'error' => 'Failed to set-up staging environment after uploading. Message was: %output%'
-         ),
-        'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony site:build-staging",
-        'strpos' => array(
-          array(
-            'string' => 'Staging build completed successfully.',
-            'test' => '!==',
-            'value' => false
-          ),
-          array(
-            'string' => 'error',
-            'test' => '===',
-            'value' => false
-          )
-        )
-      ),
-      // rsynching across staging servers
-      array(
-        'messages' => array(
-          'label' => 'Synching to other staging servers... ',
-          'success' => 'success',
-          'error' => 'Failed to synch to other staging servers. Message was: %output%'
-         ),
-        'shell_exec' => "ssh upload@web1 sudo /usr/local/bin/rsync" .
-                        ucfirst($this->projectName) . "Staging.sh"
-      ),
-      array(
-        'finalMessages' => array(
-          'success' => 'Staging deployment successful. Now run the tests.',
-          'error' => 'Staging build did not complete successfully.'
-        )
-      )
     );
   }
 
@@ -435,161 +451,161 @@ class sbDeployActions extends sfActions
   protected function setupProductionFormActions()
   {
     $this->productionActions = array(
-      // get revision notes to apply for this build
-      array(
-        'messages' => array(
-          'label' => 'Prepping revision notes... ',
-          'success' => 'Revision notes to apply are: <br/><pre>%output%</pre>',
-          'error' => 'Failed to retrieve revision notes: <pre>%output%</pre>'
-         ),
-        'shell_exec' => "../symfony site:display-revision-notes"
-      ),
-      // back up web1
-      array(
-        'messages' => array(
-          'label' => 'Backing up web1... ',
-          'success' => 'success',
-          'error' => 'Failed to backup web1. Aborting.'
-         ),
-        'shell_exec' => "ssh testbox@web1 sudo /usr/local/bin/backup.sh",
-        'strpos' => array(
-          array(
-            'string' => 'Back up finished',
-            'test' => '!==',
-            'value' => false
-          )
-        )
-      ),
-      // back up db server file system
-      array(
-        'messages' => array(
-          'label' => 'Backing up database server file system... ',
-          'success' => 'success',
-          'error' => 'Failed to backup database server file system. Aborting.'
-         ),
-        'shell_exec' => "ssh testbox@dbserver sudo /usr/local/bin/backup.sh",
-        'strpos' => array(
-          array(
-            'string' => 'Back up finished',
-            'test' => '!==',
-            'value' => false
-          ),
-          array(
-            'string' => 'Permission denied',
-            'test' => '===',
-            'value' => false
-          )
-        )
-      ),
-      // back up db server databases
-      array(
-        'messages' => array(
-          'label' => 'Backing up database server databases... ',
-          'success' => 'success',
-          'error' => 'Failed to backup database server databases. Aborting.'
-         ),
-        'shell_exec' => "ssh testbox@dbserver sudo /usr/local/bin/backupDBs.php",
-        'strpos' => array(
-          array(
-            'string' => 'All done',
-            'test' => '!==',
-            'value' => false
-          )
-        )
-      ),
-      // build to production
-      array(
-        'messages' => array(
-          'label' => 'Copying code to the production servers... ',
-          'success' => 'success',
-          'error' => 'Failed to copy files to production. Aborting.'
-         ),
-        'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony site:build-production",
-        'strpos' => array(
-          array(
-            'string' => 'Production build complete.',
-            'test' => '!==',
-            'value' => false
-          )
+        // get revision notes to apply for this build
+        array(
+            'messages' => array(
+                'label' => 'Prepping revision notes... ',
+                'success' => 'Revision notes to apply are: <br/><pre>%output%</pre>',
+                'error' => 'Failed to retrieve revision notes: <pre>%output%</pre>'
+            ),
+            'shell_exec' => "../symfony site:display-revision-notes"
         ),
-        // save the output of this command to the user's session because we'll need it in the
-        // next step
-        'saveOutputToSession' => true
-      ),
-      // clear the symfony cache with humpty
-      array(
-        'messages' => array(
-          'label' => 'Clearing symfony caches on all web servers... ',
-          'success' => 'success',
-          'error' => 'Failed to clear the symfony caches. Aborting.'
-         ),
-        'shell_exec' => "ssh upload@web1 /usr/local/humpty/humpty " .
-          " -p {$this->projectName} -a symfony-clear-cache",
-        'strpos' => array(
-          array(
-            'string' => 'task complete',
-            'test' => '!==',
-            'value' => false
-          )
-        )
-      ),
-      // clear the minify cache with humpty
-      array(
-        'messages' => array(
-          'label' => 'Clearing minify caches on all web servers... ',
-          'success' => 'success',
-          'error' => 'Failed to clear the minify caches. Aborting.'
-         ),
-        'shell_exec' => "ssh upload@web1 /usr/local/humpty/humpty " .
-          " -p {$this->projectName} -a symfony-clear-minify-cache",
-        'strpos' => array(
-          array(
-            'string' => 'task complete',
-            'test' => '!==',
-            'value' => false
-          )
-        )
-      ),
-      // discover the revision to tag a release against
-      array(
-        'messages' => array(
-          'label' => 'Discovering the revision to tag the trunk against... ',
-          'success' => 'success. The trunk will be tagged against revision %output%',
-          'error' => 'Failed to calculate the revision to tag a release against. Tag the trunk manually.'
-         ),
-        'usePreviousCommandOutput' => true,
-        'preg_match' => array(
-          'regex' => '/ NOW TAG THE RELEASE AGAINST REVISION (\d+) /',
-          'subject' => '%previousOutput%',
-          'matchIndex' => 1
+        // back up web1
+        array(
+            'messages' => array(
+                'label' => 'Backing up web1... ',
+                'success' => 'success',
+                'error' => 'Failed to backup web1. Aborting.'
+            ),
+            'shell_exec' => "ssh testbox@web1 sudo /usr/local/bin/backup.sh",
+            'strpos' => array(
+                array(
+                    'string' => 'Back up finished',
+                    'test' => '!==',
+                    'value' => false
+                )
+            )
         ),
-        'saveOutputToSession' => true
-      ),
-      // now tag the release
-      array(
-        'messages' => array(
-          'label' => 'Tagging a release... ',
-          'success' => 'success. Tagged the trunk against revision %previousOutput%',
-          'error' => 'Failed to tag a release. Tag the trunk manually against revision %previousOutput%.'
-         ),
-        'usePreviousCommandOutput' => true,
-        'shell_exec' => "svn cp svn://testbox.beans/projects/{$this->projectName}/trunk@%previousOutput% " .
-          "svn://testbox.beans/projects/{$this->projectName}/tags/`date +'REL-%Y-%m-%d_%H-%M'` -m 'Tagging a release'",
-        'strpos' => array(
-          array(
-            'string' => 'Committed revision ',
-            'test' => '!==',
-            'value' => false
-          )
+        // back up db server file system
+        array(
+            'messages' => array(
+                'label' => 'Backing up database server file system... ',
+                'success' => 'success',
+                'error' => 'Failed to backup database server file system. Aborting.'
+            ),
+            'shell_exec' => "ssh testbox@dbserver sudo /usr/local/bin/backup.sh",
+            'strpos' => array(
+                array(
+                    'string' => 'Back up finished',
+                    'test' => '!==',
+                    'value' => false
+                ),
+                array(
+                    'string' => 'Permission denied',
+                    'test' => '===',
+                    'value' => false
+                )
+            )
         ),
-      ),
-      // final messages
-      array(
-        'finalMessages' => array(
-          'success' => 'Successfully deployed to production. Our work here is done.',
-          'error' => 'Production deployment failed'
+        // back up db server databases
+        array(
+            'messages' => array(
+                'label' => 'Backing up database server databases... ',
+                'success' => 'success',
+                'error' => 'Failed to backup database server databases. Aborting.'
+            ),
+            'shell_exec' => "ssh testbox@dbserver sudo /usr/local/bin/backupDBs.php",
+            'strpos' => array(
+                array(
+                    'string' => 'All done',
+                    'test' => '!==',
+                    'value' => false
+                )
+            )
+        ),
+        // build to production
+        array(
+            'messages' => array(
+                'label' => 'Copying code to the production servers... ',
+                'success' => 'success',
+                'error' => 'Failed to copy files to production. Aborting.'
+            ),
+            'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony site:build-production",
+            'strpos' => array(
+                array(
+                    'string' => 'Production build complete.',
+                    'test' => '!==',
+                    'value' => false
+                )
+            ),
+            // save the output of this command to the user's session because we'll need it in the
+            // next step
+            'saveOutputToSession' => true
+        ),
+        // clear the symfony cache with humpty
+        array(
+            'messages' => array(
+                'label' => 'Clearing symfony caches on all web servers... ',
+                'success' => 'success',
+                'error' => 'Failed to clear the symfony caches. Aborting.'
+            ),
+            'shell_exec' => "ssh upload@web1 /usr/local/humpty/humpty " .
+            " -p {$this->projectName} -a symfony-clear-cache",
+            'strpos' => array(
+                array(
+                    'string' => 'task complete',
+                    'test' => '!==',
+                    'value' => false
+                )
+            )
+        ),
+        // clear the minify cache with humpty
+        array(
+            'messages' => array(
+                'label' => 'Clearing minify caches on all web servers... ',
+                'success' => 'success',
+                'error' => 'Failed to clear the minify caches. Aborting.'
+            ),
+            'shell_exec' => "ssh upload@web1 /usr/local/humpty/humpty " .
+            " -p {$this->projectName} -a symfony-clear-minify-cache",
+            'strpos' => array(
+                array(
+                    'string' => 'task complete',
+                    'test' => '!==',
+                    'value' => false
+                )
+            )
+        ),
+        // discover the revision to tag a release against
+        array(
+            'messages' => array(
+                'label' => 'Discovering the revision to tag the trunk against... ',
+                'success' => 'success. The trunk will be tagged against revision %output%',
+                'error' => 'Failed to calculate the revision to tag a release against. Tag the trunk manually.'
+            ),
+            'usePreviousCommandOutput' => true,
+            'preg_match' => array(
+                'regex' => '/ NOW TAG THE RELEASE AGAINST REVISION (\d+) /',
+                'subject' => '%previousOutput%',
+                'matchIndex' => 1
+            ),
+            'saveOutputToSession' => true
+        ),
+        // now tag the release
+        array(
+            'messages' => array(
+                'label' => 'Tagging a release... ',
+                'success' => 'success. Tagged the trunk against revision %previousOutput%',
+                'error' => 'Failed to tag a release. Tag the trunk manually against revision %previousOutput%.'
+            ),
+            'usePreviousCommandOutput' => true,
+            'shell_exec' => "svn cp svn://testbox.beans/projects/{$this->projectName}/trunk@%previousOutput% " .
+            "svn://testbox.beans/projects/{$this->projectName}/tags/`date +'REL-%Y-%m-%d_%H-%M'` -m 'Tagging a release'",
+            'strpos' => array(
+                array(
+                    'string' => 'Committed revision ',
+                    'test' => '!==',
+                    'value' => false
+                )
+            ),
+        ),
+        // final messages
+        array(
+            'finalMessages' => array(
+                'success' => 'Successfully deployed to production. Our work here is done.',
+                'error' => 'Production deployment failed'
+            )
         )
-      )
     );
 
     // disabling part of the process temporarily
@@ -602,21 +618,22 @@ class sbDeployActions extends sfActions
   protected function setupTestFormActions()
   {
     $this->testActions = array(
-      array(
-        'messages' => array(
-          'label' => 'Running tests on staging... ',
-          'success' => 'All tests successful',
-          'error' => 'Some tests failed: %output%'
-         ),
-        'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony test:all",
-        'strpos' => array(
-          array(
-            'string' => 'All tests successful',
-            'test' => '!==',
-            'value' => false
-          )
+        array(
+            'messages' => array(
+                'label' => 'Running tests on staging... ',
+                'success' => 'All tests successful',
+                'error' => 'Some tests failed: %output%'
+            ),
+            'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony test:all",
+            'strpos' => array(
+                array(
+                    'string' => 'All tests successful',
+                    'test' => '!==',
+                    'value' => false
+                )
+            )
         )
-      )
     );
   }
+
 }
