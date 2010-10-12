@@ -27,9 +27,10 @@ class sbDeployActions extends sfActions
     $this->setLayout('sbDeployLayout');
     // the previous line isn't working on Symfony 1.4.6
     // $this->setLayout(false);
-    $repoUri = "svn://testbox.beans/projects/{$this->projectName}/" . trim($this->getRequest()->getParameter('staging[repo_uri]', 'trunk'), '/');
+    $repoLocation = trim($this->getRequest()->getParameter('staging[repo_uri]', 'trunk'), '/');
+    $this->repoUri = "svn://testbox.beans/projects/{$this->projectName}/" . (strlen($repoLocation) > 0 ? $repoLocation : 'trunk');
     $this->setupProductionFormActions();
-    $this->setupStagingFormActions($repoUri);
+    $this->setupStagingFormActions();
     $this->setupTestFormActions();
   }
 
@@ -278,17 +279,17 @@ class sbDeployActions extends sfActions
   /**
    * Sets up an array defining actions for the staging form
    */
-  protected function setupStagingFormActions($repoUri)
+  protected function setupStagingFormActions()
   {
     $this->stagingActions = array(
         // swtich to correct repo
         array(
             'messages' => array(
-                'label' => "Switch to repo at $repoUri with 'svn switch'...",
+                'label' => "Switch to repo at $this->repoUri with 'svn switch'...",
                 'success' => '%output%',
                 'error' => 'Failed to switch to correct repo. Aborting.'
             ),
-            'shell_exec' => "svn switch $repoUri ../../../ | tail -n 1",
+            'shell_exec' => "svn switch $this->repoUri ../../../ | tail -n 1",
             'strpos' => array(
                 array(
                     'string' => 'revision',

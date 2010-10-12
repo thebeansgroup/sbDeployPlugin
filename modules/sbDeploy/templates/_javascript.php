@@ -53,8 +53,7 @@
         {
           return;
         }
-
-        $.getJSON("/frontend_deployment.php/deploy/ajax/" + this.form + "/" + this.step + ".html",
+        $.getJSON("/frontend_deployment.php/deploy/ajax/" + this.form + "/" + this.step + ".html?staging[repo_uri]=" + $('#staging_repo_uri').val(),
         { previousResult: this.overallSuccess },
         this.handleAjax
       );

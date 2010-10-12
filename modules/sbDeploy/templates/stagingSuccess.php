@@ -8,8 +8,10 @@
 
 <h1>Deploying <?php echo sfConfig::get('app_site_name'); ?> to staging...</h1>
 <ol id="taskList">
-  <li>Updating deployment working copy with 'svn up'... <img src="/images/ajax-loader.gif" id="ajaxLoader"></li>
+  <li>Switch to repo at <?php echo $repoUri ?> with 'svn switch'... <img src="/images/ajax-loader.gif" id="ajaxLoader"></li>
 </ol>
+
+<input type="hidden" id="staging_repo_uri" value="<?php echo $repoUri ?>" />
 
 <h2 id="finalFeedback" ></h2>
 <?php include_partial('sbDeploy/testForm', array('form' => $testForm)) ?>
