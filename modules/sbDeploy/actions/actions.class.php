@@ -284,11 +284,11 @@ class sbDeployActions extends sfActions
         // swtich to correct repo
         array(
             'messages' => array(
-                'label' => "Switich to repo at $repoUri...",
+                'label' => "Switch to repo at $repoUri with 'svn switch'...",
                 'success' => '%output%',
                 'error' => 'Failed to switch to correct repo. Aborting.'
             ),
-            'shell_exec' => "cd ../../../ && svn switch $repoUri | tail -n 1",
+            'shell_exec' => "svn switch $repoUri ../../../ | tail -n 1",
             'strpos' => array(
                 array(
                     'string' => 'revision',
@@ -443,6 +443,7 @@ class sbDeployActions extends sfActions
             )
         )
     );
+//            var_dump($this->stagingActions);exit;
   }
 
   /**
