@@ -27,8 +27,16 @@ class sbDeployActions extends sfActions
     $this->setLayout('sbDeployLayout');
     // the previous line isn't working on Symfony 1.4.6
     // $this->setLayout(false);
-    $repoLocation = trim($this->getRequest()->getParameter('staging[repo_uri]', 'trunk'), '/');
-    $this->repoUri = "svn://testbox.beans/projects/{$this->projectName}/" . (strlen($repoLocation) > 0 ? $repoLocation : 'trunk');
+    if (strlen(trim($this->getRequest()->getParameter('staging_repo_uri', ''))) == 0)
+    {
+      $repoLocation = trim($this->getRequest()->getParameter('staging[repo_uri]', 'trunk'), '/');
+      $this->repoUri = "svn://testbox.beans/projects/{$this->projectName}/" . (strlen($repoLocation) > 0 ? $repoLocation
+                        : 'trunk');
+    }
+    else
+    {
+      $this->repoUri = $this->getRequest()->getParameter('staging_repo_uri');
+    }
     $this->setupProductionFormActions();
     $this->setupStagingFormActions();
     $this->setupTestFormActions();
