@@ -8,7 +8,7 @@
 
   <h1>Running tests on staging</h1>
   <ol id="taskList">
-    <li>Running tests on staging... <img src="/images/ajax-loader.gif" id="ajaxLoader"></li>
+    <li>Running tests on staging... <img src="/sbDeployPlugin/images/ajax-loader.gif" id="ajaxLoader"></li>
   </ol>
 
   <h2 id="finalFeedback" ></h2>

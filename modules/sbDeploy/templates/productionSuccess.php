@@ -11,7 +11,7 @@
   <h1>Deploying <?php echo sfConfig::get('app_site_name'); ?> to production...</h1>
 
   <ol id="taskList">
-    <li>Prepping revision notes... <img src="/images/ajax-loader.gif" id="ajaxLoader"></li>
+    <li>Prepping revision notes... <img src="/sbDeployPlugin/images/ajax-loader.gif" id="ajaxLoader"></li>
   </ol>
 
   <h2 id="finalFeedback" ></h2>

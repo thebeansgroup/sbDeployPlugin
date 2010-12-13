@@ -29,7 +29,7 @@ deployment:
   storage:
     class: sfSessionStorage
 
-Next, add the ajax-loader.gif image in your web/images directory
+Next, publish the plugins assets
 
 
 Finally, make sure the plugin is enabled. How to do this will depend on your version of symfony.
