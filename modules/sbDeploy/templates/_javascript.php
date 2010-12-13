@@ -30,7 +30,7 @@
         if (data.nextLabel)
         {
           $('ol#taskList').append('<li>' + data.nextLabel +
-            ' <img src="/images/ajax-loader.gif" id="ajaxLoader"></li>');
+            ' <img src="/sbDeployPlugin/images/ajax-loader.gif" id="ajaxLoader"></li>');
         }
 
         // final feedback if it's there

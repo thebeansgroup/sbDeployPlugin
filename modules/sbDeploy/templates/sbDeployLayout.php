@@ -38,7 +38,7 @@
       <p id="resetLink"><a href="<?php echo url_for('sbDeploy/index') ?>">Start again</a></p>
     </div>
   </body>
-  <script type="text/javascript" src="/js/jquery-1.2.3.js">
+  <script type="text/javascript" src="/sbDeployPlugin/js/jquery-1.2.3.js">
   </script>
   <?php if (has_slot('javascript')): ?>
   <?php include_slot('javascript') ?>
