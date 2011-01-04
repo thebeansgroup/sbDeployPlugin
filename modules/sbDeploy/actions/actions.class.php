@@ -348,6 +348,11 @@ class sbDeployActions extends sfActions
             'shell_exec' => '../symfony lc',
             'strpos' => array(
                 array(
+                    'string' => 'Less compiled and written to',
+                    'test' => '===',
+                    'value' => false
+                ),
+                array(
                     'string' => 'succesfully minified.',
                     'test' => '===',
                     'value' => false
