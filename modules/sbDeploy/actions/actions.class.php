@@ -338,6 +338,38 @@ class sbDeployActions extends sfActions
                 )
             )
         ),
+        // compile the less
+        array(
+            'messages' => array(
+                'label' => "Compiling less...",
+                'success' => 'less compiled',
+                'error' => 'Failed to compile less. Aborting.'
+            ),
+            'shell_exec' => '../symfony lc',
+            'strpos' => array(
+                array(
+                    'string' => 'succesfully minified',
+                    'test' => '===',
+                    'value' => false
+                )
+            )
+        ),
+        // combine and compile javascript
+        array(
+            'messages' => array(
+                'label' => "preparing javascript...",
+                'success' => 'javascript ready',
+                'error' => 'Failed to prepare javascript. Aborting.'
+            ),
+            'shell_exec' => '../symfony jb',
+            'strpos' => array(
+                array(
+                    'string' => '0 error(s)',
+                    'test' => '===',
+                    'value' => false
+                )
+            )
+        ),
         // re-build the model
         array(
             'messages' => array(
