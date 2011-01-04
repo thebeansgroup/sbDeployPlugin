@@ -365,7 +365,7 @@ class sbDeployActions extends sfActions
             'strpos' => array(
                 array(
                     'string' => '0 error(s)',
-                    'test' => '!==',
+                    'test' => '===',
                     'value' => false
                 )
             )
