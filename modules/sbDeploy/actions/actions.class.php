@@ -338,7 +338,7 @@ class sbDeployActions extends sfActions
                 )
             )
         ),
-        // compile the less
+        // compile less
         array(
             'messages' => array(
                 'label' => "Compiling less...",
@@ -349,12 +349,12 @@ class sbDeployActions extends sfActions
             'strpos' => array(
                 array(
                     'string' => 'Less compiled and written to',
-                    'test' => '===',
+                    'test' => '!==',
                     'value' => false
                 ),
                 array(
                     'string' => 'succesfully minified.',
-                    'test' => '===',
+                    'test' => '!==',
                     'value' => false
                 )
             )
