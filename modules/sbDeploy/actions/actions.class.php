@@ -362,14 +362,19 @@ class sbDeployActions extends sfActions
         // combine and compile javascript
         array(
             'messages' => array(
-                'label' => "Preparing javascript...",
-                'success' => 'javascript ready',
-                'error' => 'failed to prepare javascript. Aborting.'
+                'label' => "Building javascript...",
+                'success' => 'javascript built',
+                'error' => 'failed to build javascript. Aborting.'
             ),
             'shell_exec' => '../symfony jb',
             'strpos' => array(
                 array(
                     'string' => '0 error(s)',
+                    'test' => '!==',
+                    'value' => false
+                ),
+                array(
+                    'string' => 'main.js',
                     'test' => '!==',
                     'value' => false
                 )
