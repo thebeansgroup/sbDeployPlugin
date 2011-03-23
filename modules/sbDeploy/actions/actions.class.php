@@ -368,12 +368,12 @@ class sbDeployActions extends sfActions
           array(
             'string' => '1 error(s)',
             'value' => false
+          ),
+          array(
+            'string' => '----------------',
+            'test' => '!==',
+            'value' => false
           )
-//                array(
-//                    'string' => 'main.js',
-//                    'test' => '!==',
-//                    'value' => false
-//                )
         )
       ),
       // re-build the model
