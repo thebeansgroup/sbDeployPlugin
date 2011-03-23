@@ -366,8 +366,7 @@ class sbDeployActions extends sfActions
         'shell_exec' => '../symfony jb',
         'strpos' => array(
           array(
-            'string' => '0 error(s)',
-            'test' => '!==',
+            'string' => '1 error(s)',
             'value' => false
           )
 //                array(
