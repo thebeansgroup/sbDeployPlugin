@@ -372,7 +372,7 @@ class sbDeployActions extends sfActions
           ),
           array(
             'string' => 'ERROR',
-            'test' => '!==',
+            'test' => '===',
             'value' => true
           )
         )
