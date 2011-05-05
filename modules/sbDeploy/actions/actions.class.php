@@ -721,10 +721,10 @@ class sbDeployActions extends sfActions
           'success' => 'All tests successful',
           'error' => 'Some tests failed: %output%'
         ),
-        'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony test:all",
+        'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony phpunit:runtest",
         'strpos' => array(
           array(
-            'string' => 'All tests successful',
+            'string' => 'Failures: 0, Errors: 0',
             'test' => '!==',
             'value' => false
           )
