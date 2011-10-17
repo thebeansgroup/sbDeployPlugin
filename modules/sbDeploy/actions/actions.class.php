@@ -43,7 +43,7 @@ class sbDeployActions extends sfActions
     if (strlen(trim($this->getRequest()->getParameter('staging_repo_uri', ''))) == 0)
     {
       $repoLocation = trim($this->getRequest()->getParameter('staging[repo_uri]', 'trunk'), '/');
-      $this->repoUri = "svn://testbox.beans/projects/{$this->projectName}/" . (strlen($repoLocation) > 0 ? $repoLocation : 'trunk');
+      $this->repoUri = "{$this->svnServer}/{$this->projectName}/" . (strlen($repoLocation) > 0 ? $repoLocation : 'trunk');
     }
     else
     {
@@ -699,8 +699,8 @@ class sbDeployActions extends sfActions
           'error' => 'Failed to tag a release. Tag the trunk manually against revision %previousOutput%.'
         ),
         'usePreviousCommandOutput' => true,
-        'shell_exec' => "svn cp svn://testbox.beans/projects/{$this->projectName}/trunk@%previousOutput% " .
-        "svn://testbox.beans/projects/{$this->projectName}/tags/`date +'REL-%Y-%m-%d_%H-%M'` -m 'Tagging a release'",
+        'shell_exec' => "svn cp {$this->svnServer}/{$this->projectName}/trunk@%previousOutput% " .
+        "{$this->svnServer}/{$this->projectName}/tags/`date +'REL-%Y-%m-%d_%H-%M'` -m 'Tagging a release'",
         'strpos' => array(
           array(
             'string' => 'Committed revision ',
