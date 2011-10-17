@@ -19,7 +19,20 @@ class sbDeployActions extends sfActions
 
     if (strpos($_SERVER['HTTP_HOST'], 'testbox') === false)
     {
-//      return $this->setTemplate('invalidServer');
+      //return $this->setTemplate('invalidServer');
+    }
+
+    // setup svn project uri
+    $svnServer = sfConfig::get('app_svn_project_uri', null);
+    if(!$svnServer)
+    {
+      throw new InvalidArgumentException("Please make sure you define the svn uri to the projects");
+    }
+    // setup the lead server
+    $leadServer = sfConfig::get('app_lead_server', null);
+    if(!$leadServer)
+    {
+      throw new InvalidArgumentException("Please make sure you define the lead server for the deployment");
     }
 
     $this->projectName = TaskUtils::getProjectName();
@@ -416,7 +429,7 @@ class sbDeployActions extends sfActions
           'success' => 'success',
           'error' => 'failed. Message was: %output%'
         ),
-        'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony site:setup staging",
+        'shell_exec' => "ssh upload@{$this->leadServer} /var/www/html/staging/{$this->projectName}/symfony site:setup staging",
         'strpos' => array(
           array(
             'string' => 'Clearing the Symfony cache...',
@@ -501,14 +514,14 @@ class sbDeployActions extends sfActions
           )
         )
       ),
-      // running set-up staging on web1 again
+      // running set-up staging on the lead server again
       array(
         'messages' => array(
           'label' => 'Setting up staging environment after upload... ',
           'success' => 'success',
           'error' => 'Failed to set-up staging environment after uploading. Message was: %output%'
         ),
-        'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony site:build-staging",
+        'shell_exec' => "ssh upload@{$this->leadServer} /var/www/html/staging/{$this->projectName}/symfony site:build-staging",
         'strpos' => array(
           array(
             'string' => 'Staging build completed successfully.',
@@ -529,7 +542,7 @@ class sbDeployActions extends sfActions
           'success' => 'success',
           'error' => 'Failed to synch to other staging servers. Message was: %output%'
         ),
-        'shell_exec' => "ssh upload@web1 sudo /usr/local/bin/rsync" .
+        'shell_exec' => "ssh upload@{$this->leadServer} sudo /usr/local/bin/rsync" .
         ucfirst($this->projectName) . "Staging.sh"
       ),
       array(
@@ -557,14 +570,14 @@ class sbDeployActions extends sfActions
         ),
         'shell_exec' => "../symfony site:display-revision-notes"
       ),
-      // back up web1
+      // back up the lead server
       array(
         'messages' => array(
-          'label' => 'Backing up web1... ',
+          'label' => "Backing up ... {$this->leadServer}",
           'success' => 'success',
-          'error' => 'Failed to backup web1. Aborting.'
+          'error' => "Failed to backup {$this->leadServer}. Aborting."
         ),
-        'shell_exec' => "ssh testbox@web1 sudo /usr/local/bin/backup.sh",
+        'shell_exec' => "ssh testbox@{$this->leadServer} sudo /usr/local/bin/backup.sh",
         'strpos' => array(
           array(
             'string' => 'Back up finished',
@@ -617,7 +630,7 @@ class sbDeployActions extends sfActions
           'success' => 'success',
           'error' => 'Failed to copy files to production. Aborting.'
         ),
-        'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony site:build-production",
+        'shell_exec' => "ssh upload@{$this->leadServer} /var/www/html/staging/{$this->projectName}/symfony site:build-production",
         'strpos' => array(
           array(
             'string' => 'Production build complete.',
@@ -636,7 +649,7 @@ class sbDeployActions extends sfActions
           'success' => 'success',
           'error' => 'Failed to clear the symfony caches. Aborting.'
         ),
-        'shell_exec' => "ssh upload@web1 /usr/local/humpty/humpty " .
+        'shell_exec' => "ssh upload@{$this->leadServer} /usr/local/humpty/humpty " .
         " -p {$this->projectName} -a symfony-clear-cache",
         'strpos' => array(
           array(
@@ -653,7 +666,7 @@ class sbDeployActions extends sfActions
           'success' => 'success',
           'error' => 'Failed to clear the minify caches. Aborting.'
         ),
-        'shell_exec' => "ssh upload@web1 /usr/local/humpty/humpty " .
+        'shell_exec' => "ssh upload@{$this->leadServer} /usr/local/humpty/humpty " .
         " -p {$this->projectName} -a symfony-clear-minify-cache",
         'strpos' => array(
           array(
@@ -721,7 +734,7 @@ class sbDeployActions extends sfActions
           'success' => 'All tests successful',
           'error' => 'Some tests failed: %output%'
         ),
-        'shell_exec' => "ssh upload@web1 /var/www/html/staging/{$this->projectName}/symfony phpunit:runtest",
+        'shell_exec' => "ssh upload@{$this->leadServer} /var/www/html/staging/{$this->projectName}/symfony phpunit:runtest",
         'strpos' => array(
           array(
             'string' => 'Failures: 0, Errors: 0',

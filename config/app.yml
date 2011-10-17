@@ -1,0 +1,5 @@
+all:
+  svn:
+    project_uri: svn://testbox.beans/projects/
+
+  lead_server: web1
