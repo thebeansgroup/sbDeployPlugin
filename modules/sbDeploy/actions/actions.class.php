@@ -44,6 +44,7 @@ class sbDeployActions extends sfActions
     {
       $repoLocation = trim($this->getRequest()->getParameter('staging[repo_uri]', 'trunk'), '/');
       $this->repoUri = "{$this->svnServer}/{$this->projectName}/" . (strlen($repoLocation) > 0 ? $repoLocation : 'trunk');
+      var_dump($this->repoUri);exit;
     }
     else
     {
@@ -307,7 +308,7 @@ class sbDeployActions extends sfActions
           'success' => '%output%',
           'error' => 'Failed to switch to correct repo. Aborting.'
         ),
-        'shell_exec' => "svn switch {$this->svnServer}{$this->repoUri} ../../../ | tail -n 1",
+        'shell_exec' => "svn switch {$this->repoUri} ../../../ | tail -n 1",
         'strpos' => array(
           array(
             'string' => 'revision',
