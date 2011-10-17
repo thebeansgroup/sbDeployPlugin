@@ -23,19 +23,19 @@ class sbDeployActions extends sfActions
     }
 
     // setup svn project uri
-    $svnServer = sfConfig::get('app_svn_project_uri', null);
-    if(!$svnServer)
+    $this->svnServer = sfConfig::get('app_svn_project_uri', null);
+    if(!$this->svnServer)
     {
       throw new InvalidArgumentException("Please make sure you define the svn uri to the projects");
     }
     // setup the lead server
-    $leadServer = sfConfig::get('app_lead_server', null);
-    if(!$leadServer)
+    $this->leadServer = sfConfig::get('app_lead_server', null);
+    if(!$this->leadServer)
     {
       throw new InvalidArgumentException("Please make sure you define the lead server for the deployment");
     }
 
-    $this->projectName = TaskUtils::getProjectName();
+    $this->projectName = sfConfig::get('app_project_name', TaskUtils::getProjectName());
 
     $this->setLayout('sbDeployLayout');
     // the previous line isn't working on Symfony 1.4.6
