@@ -44,7 +44,6 @@ class sbDeployActions extends sfActions
     {
       $repoLocation = trim($this->getRequest()->getParameter('staging[repo_uri]', 'trunk'), '/');
       $this->repoUri = "{$this->svnServer}/{$this->projectName}/" . (strlen($repoLocation) > 0 ? $repoLocation : 'trunk');
-      var_dump($this->repoUri);exit;
     }
     else
     {
