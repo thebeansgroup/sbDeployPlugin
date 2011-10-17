@@ -307,7 +307,7 @@ class sbDeployActions extends sfActions
           'success' => '%output%',
           'error' => 'Failed to switch to correct repo. Aborting.'
         ),
-        'shell_exec' => "svn switch $this->repoUri ../../../ | tail -n 1",
+        'shell_exec' => "svn switch {$this->svnServer}{$this->repoUri} ../../../ | tail -n 1",
         'strpos' => array(
           array(
             'string' => 'revision',
