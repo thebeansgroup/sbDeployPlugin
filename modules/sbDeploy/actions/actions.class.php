@@ -490,7 +490,7 @@ class sbDeployActions extends sfActions
       // copy code to staging
       array(
         'messages' => array(
-          'label' => 'Uploading code to staging environment... ',
+          'label' => "Uploading code to staging environment on host {$this->leadServers}...",
           'success' => 'success',
           'error' => 'failed. Output was: %output%'
         ),
