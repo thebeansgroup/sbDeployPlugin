@@ -426,7 +426,7 @@ class sbDeployActions extends sfActions
       // set up staging prior to uploading
       array(
         'messages' => array(
-          'label' => 'Setting up staging environment prior to upload... ',
+          'label' => "Setting up staging environment on host {$this->leadServer} prior to upload...",
           'success' => 'success',
           'error' => 'failed. Message was: %output%'
         ),
