@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Deploy <?php echo sfConfig::get('app_site_name'); ?> to Production</title>
+    <title>Deploy <?php echo sfConfig::get('app_site_name'); ?> to Production on host <?php echo $leadServer; ?></title>
     <style type="text/css">
       body {
         background-color: #eee;
