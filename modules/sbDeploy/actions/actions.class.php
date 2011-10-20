@@ -439,54 +439,54 @@ class sbDeployActions extends sfActions
           )
         )
       ),
-      // re-build the model
-      array(
-        'messages' => array(
-          'label' => "Rebuilding model classes... ",
-          'success' => 'done',
-          'error' => 'Failed to rebuild model classes. Aborting.'
-        ),
-        'shell_exec' => '../symfony propel:build-model',
-        'strpos' => array(
-          array(
-            'string' => 'autoload',
-            'test' => '!==',
-            'value' => false
-          )
-        )
-      ),
-      // re-build the forms
-      array(
-        'messages' => array(
-          'label' => "Rebuilding form classes... ",
-          'success' => 'done',
-          'error' => 'Failed to rebuild form classes. Aborting.'
-        ),
-        'shell_exec' => '../symfony propel:build-forms',
-        'strpos' => array(
-          array(
-            'string' => 'autoload',
-            'test' => '!==',
-            'value' => false
-          )
-        )
-      ),
-      // re-build the filters
-      array(
-        'messages' => array(
-          'label' => "Rebuilding filter classes... ",
-          'success' => 'done',
-          'error' => 'Failed to rebuild filter classes. Aborting.'
-        ),
-        'shell_exec' => '../symfony propel:build-filters',
-        'strpos' => array(
-          array(
-            'string' => 'autoload',
-            'test' => '!==',
-            'value' => false
-          )
-        )
-      ),
+//      // re-build the model
+//      array(
+//        'messages' => array(
+//          'label' => "Rebuilding model classes... ",
+//          'success' => 'done',
+//          'error' => 'Failed to rebuild model classes. Aborting.'
+//        ),
+//        'shell_exec' => '../symfony propel:build-model',
+//        'strpos' => array(
+//          array(
+//            'string' => 'autoload',
+//            'test' => '!==',
+//            'value' => false
+//          )
+//        )
+//      ),
+//      // re-build the forms
+//      array(
+//        'messages' => array(
+//          'label' => "Rebuilding form classes... ",
+//          'success' => 'done',
+//          'error' => 'Failed to rebuild form classes. Aborting.'
+//        ),
+//        'shell_exec' => '../symfony propel:build-forms',
+//        'strpos' => array(
+//          array(
+//            'string' => 'autoload',
+//            'test' => '!==',
+//            'value' => false
+//          )
+//        )
+//      ),
+//      // re-build the filters
+//      array(
+//        'messages' => array(
+//          'label' => "Rebuilding filter classes... ",
+//          'success' => 'done',
+//          'error' => 'Failed to rebuild filter classes. Aborting.'
+//        ),
+//        'shell_exec' => '../symfony propel:build-filters',
+//        'strpos' => array(
+//          array(
+//            'string' => 'autoload',
+//            'test' => '!==',
+//            'value' => false
+//          )
+//        )
+//      ),
       // copy code to staging
       array(
         'messages' => array(
