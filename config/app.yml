@@ -5,4 +5,4 @@ all:
   lead_server: web1
 
   project:
-    #name: studentbeans # Use this value if you want to upload to a different folder on the  
+    name: studentbeans # Use this value if you want to upload to a different folder on the deployment server
