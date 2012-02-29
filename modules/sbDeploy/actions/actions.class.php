@@ -536,7 +536,8 @@ class sbDeployActions extends sfActions
           )
         )
       ),
-      // rsynching across staging servers
+      /* Not needed anymore since we only have staging on one server
+       * rsynching across staging servers
       array(
         'messages' => array(
           'label' => 'Synching to other staging servers... ',
@@ -545,7 +546,7 @@ class sbDeployActions extends sfActions
         ),
         'shell_exec' => "ssh upload@{$this->leadServer} sudo /usr/local/bin/rsync" .
         ucfirst($this->projectNameOnServer) . "Staging.sh"
-      ),
+      ),*/
       array(
         'finalMessages' => array(
           'success' => 'Staging deployment successful. Now run the tests.',
